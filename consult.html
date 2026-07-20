@@ -44,8 +44,8 @@
         갑작스러운 전화는 드리지 않습니다.
       </p>
 
-      <div class="form-card">
-        <form action="https://formspree.io/f/xlgqnjrd" method="POST">
+      <div class="form-card" id="formCard">
+        <form action="https://formspree.io/f/xlgqnjrd" method="POST" id="consultForm">
           <div class="field">
             <label for="name">성함 <span class="req">*</span></label>
             <input type="text" id="name" name="성함" required autocomplete="name" placeholder="예) 김영희">
@@ -81,7 +81,8 @@
           <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
           <input type="hidden" name="_subject" value="[라이프브리핑] 새 무료 점검 신청">
 
-          <button type="submit" class="btn btn-gold" style="width:100%">무료 점검 신청하기</button>
+          <button type="submit" class="btn btn-gold" style="width:100%" id="submitBtn">무료 점검 신청하기</button>
+          <p class="form-error" id="formError" hidden>전송에 문제가 발생했습니다. 잠시 후 다시 시도해주시거나, 아래 카카오톡으로 문의해주세요.</p>
         </form>
         <p class="form-note">보통 24시간 이내에 연락드립니다.</p>
 
@@ -89,6 +90,28 @@
           폼이 번거로우시면 카카오톡으로 바로 문의하셔도 됩니다.<br>
           카카오톡 ID: <b id="kakaoId">llh5053</b>
           <button type="button" class="copy-btn" id="copyKakao">ID 복사</button>
+        </div>
+      </div>
+
+      <!-- 접수 완료 화면 (제출 성공 시 표시) -->
+      <div class="success-card" id="successCard" hidden>
+        <div class="success-mark" aria-hidden="true">
+          <span class="s-line"></span><span class="s-diamond"></span><span class="s-line"></span>
+        </div>
+        <h3>신청이 접수되었습니다</h3>
+        <p class="success-sub">
+          남겨주신 내용을 확인한 뒤, <b>24시간 이내에 문자 또는 카카오톡으로</b> 먼저 연락드리겠습니다.
+          갑작스러운 전화는 드리지 않으니 안심하세요.
+        </p>
+        <div class="success-steps">
+          <div><span class="no">1</span> 신청 내용 확인</div>
+          <div><span class="no">2</span> 문자·카톡으로 편한 시간 조율</div>
+          <div><span class="no">3</span> 10분 브리핑 진행</div>
+        </div>
+        <p class="success-note">기다리시는 동안, 제가 어떤 정보를 전하는 사람인지 먼저 확인해보셔도 좋습니다.</p>
+        <div class="hero-actions" style="margin-top:18px">
+          <a href="index.html" class="btn btn-line">홈으로 돌아가기</a>
+          <a href="https://www.youtube.com/@LifeBriefing1" target="_blank" rel="noopener" class="btn btn-line">유튜브 채널 보기</a>
         </div>
       </div>
     </div>
@@ -106,5 +129,38 @@
 </footer>
 
 <script src="script.js"></script>
+<script>
+(function(){
+  var form = document.getElementById('consultForm');
+  if(!form) return;
+  var btn = document.getElementById('submitBtn');
+  var err = document.getElementById('formError');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    err.hidden = true;
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = '전송 중…';
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(function(res){
+      if(res.ok){
+        document.getElementById('formCard').hidden = true;
+        var s = document.getElementById('successCard');
+        s.hidden = false;
+        s.scrollIntoView({behavior:'smooth', block:'center'});
+      } else {
+        throw new Error('submit failed');
+      }
+    }).catch(function(){
+      err.hidden = false;
+      btn.disabled = false;
+      btn.textContent = original;
+    });
+  });
+})();
+</script>
 </body>
 </html>
